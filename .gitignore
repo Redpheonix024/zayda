@@ -147,3 +147,11 @@ temp/
 # OS specific
 .DS_Store
 Thumbs.db
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.package-lock.json
+composer.lock
+Gemfile.lock
