@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Entry</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Include your stylesheet if needed -->
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      form {
+        max-width: 800px;
+        margin: 20px auto;
+        display: flex;
+        flex-wrap: wrap;
+        background-color: #dbc6c6;
+        /* Set background color to white */
+        padding: 20px;
+        /* Add padding to the form */
+        border-radius: 10px;
+        /* Add border-radius for a rounded look */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        /* Add a subtle box shadow */
+      }
+
+      #visualizationContainer {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffff;
+        border-radius: 10px;
+        border-color: aqua;
+        border-width: 10px;
+        margin-bottom: 20px;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      /* Style for enabled submit button */
+
+      Button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      /* Style for disabled submit button */
+      Button:disabled {
+        background-color: #aaaaaa;
+        color: #666666;
+        cursor: not-allowed;
+      }
+
+      /* Style for disabled submit button */
+    </style>
+  </head>
+  <body>
+    <button class="side-menu-button" id="side-menu-button">☰</button>
+    <div class="side-menu" id="side-menu">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/Entries">Requests</a>
+      <a href="/deleventeries">delevery Requests</a>
+      <a href="/settings">Settings</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <h1>Update Entry, <span id="username"></span></h1>
+
+    <form id="consignmentForm">
+      <div style="width: 100%">
+        <label for="fromcity">City:</label>
+        <input
+          type="text"
+          id="fromcity"
+          name="fromcity"
+          list="citiesList"
+          autocomplete="off"
+          required
+        />
+      </div>
+      <div>
+        <label for="StartDate">Journey Start Date:</label>
+        <input type="text" id="StartDate" name="StartDate" required />
+        <!-- 
+        <select id="TimeFormat" onchange="updateTimeFormat()">
+          <option value="24">24-hour format</option>
+          <option value="12">12-hour format</option>
+        </select> -->
+        <label for="ArrivalTime">Journey start Time:</label>
+        <input type="text" id="StartTime" name="StartTime" required />
+
+        <label for="ArrivalDate">Journey Arrival Date:</label>
+        <input type="text" id="ArrivalDate" name="ArrivalDate" required />
+
+        <label for="ArrivalTime">Journey Arrival Time:</label>
+        <!-- <select id="ArrivalTimeFormat" onchange="updateTimeFormat()">
+          <option value="24">24-hour format</option>
+          <option value="12">12-hour format</option>
+        </select> -->
+        <input type="text" id="ArrivalTime" name="ArrivalTime" required />
+      </div>
+      <div style="width: 100%">
+        <label for="weight">Consignment Weight:</label>
+        <div style="display: flex">
+          <input type="number" id="weight" name="weight" step="0.01" required />
+          <select id="weightUnit" name="weightUnit" required>
+            <option value="g">Grams</option>
+            <option value="kg">Kilograms</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="width: 100%; display: flex; gap: 10px">
+        <div>
+          <label for="length">Length (cm):</label>
+          <input type="number" id="length" name="length" step="0.1" required />
+        </div>
+
+        <div>
+          <label for="breadth">Breadth (cm):</label>
+          <input
+            type="number"
+            id="breadth"
+            name="breadth"
+            step="0.1"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="height">Height (cm):</label>
+          <input type="number" id="height" name="height" step="0.1" required />
+        </div>
+      </div>
+
+      <div style="width: 100%; margin-bottom: 20px">
+        <label for="consignmentPhoto">Consignment Photo:</label>
+        <input
+          type="file"
+          id="consignmentPhoto"
+          name="consignmentPhoto"
+          accept="image/*"
+          onchange="previewConsignmentPhoto()"
+          required
+        />
+        <img
+          id="consignmentPhotoPreview"
+          src="\images\packag_noun_002_26133.jpg"
+          alt="Consignment Photo Preview"
+          style="
+            max-width: 100%;
+            max-height: 150px;
+            margin-top: 10px;
+            display: block;
+          "
+        />
+      </div>
+
+      <div style="width: 100%">
+        <label for="cityInput">destination location:</label>
+        <input
+          type="text"
+          id="cityInput"
+          name="cityInput"
+          list="citiesList"
+          autocomplete="off"
+          required
+        />
+        <datalist id="citiesList"></datalist>
+      </div>
+
+      <div id="visualizationContainer" style="height: 300px">
+        <!-- Three.js visualization will be added here -->
+      </div>
+
+      <div style="width: 100%; margin-bottom: 20px" id="transportOptions">
+        <label for="Transport">Means of Transport:</label>
+        <select id="Transport" name="Transport" required>
+          <option value="">Select an option</option>
+          <option value="road">Road</option>
+          <option value="rail">Rail</option>
+          <option value="Bus">bus</option>
+        </select>
+      </div>
+
+      <div style="width: 100%">
+        <label for="receiverName">Endpoint Receiver Name:</label>
+        <select id="receiverName" name="receiverName" required>
+          <option value="">Select a receiver</option>
+          <!-- Options will be dynamically populated by JavaScript -->
+        </select>
+      </div>
+
+      <!-- New field: Delivery Instructions -->
+      <div style="width: 100%">
+        <label for="deliveryInstructions">Delivery Instructions:</label>
+        <textarea
+          id="deliveryInstructions"
+          name="deliveryInstructions"
+          rows="4"
+          style="width: 100%"
+          required
+        ></textarea>
+      </div>
+
+      <div style="width: 100%; margin-bottom: 20px">
+        <label for="postage">Postage Cost:</label>
+        <div id="postage" style="font-weight: bold; margin-top: 8px;">₹0.00</div>
+      </div>
+
+      <button type="button" id="calculatePostageButton" onclick="calculatePostage()">
+        Calculate Postage
+      </button>
+      <button type="button" id="submitButton" onclick="UpdateConsignment()">
+        Submit
+      </button>
+      </div>
+    </form>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      let entrysubmittime = urlParams.get("entrysubmittime"); // Use 'let' instead of 'const' to allow reassignment
+
+      // Fetch the entry details
+      fetch(`/get-entry/${entrysubmittime}`)
+        .then((response) => response.json())
+        .then((entry) => {
+          // Log the fetched entry details to the console
+          console.log("Fetched Entry:", entry);
+          const entryDetails = entry.entry;
+
+          // Populate the form with the existing entry details
+          document.getElementById("fromcity").value = entryDetails.fromcity;
+          document.getElementById("weight").value = entryDetails.weight;
+          document.getElementById("weightUnit").value = entryDetails.weightUnit;
+          document.getElementById("length").value = entryDetails.length;
+          document.getElementById("breadth").value = entryDetails.breadth;
+          document.getElementById("height").value = entryDetails.height;
+          document.getElementById("cityInput").value = entryDetails.cityInput;
+          document.getElementById("Transport").value = entryDetails.Transport;
+          document.getElementById("StartDate").value = entryDetails.StartDate;
+          document.getElementById("receiverName").value =
+            entryDetails.receiverName;
+          document.getElementById("StartTime").value = entryDetails.StartTime;
+          document.getElementById("ArrivalDate").value =
+            entryDetails.ArrivalDate;
+          document.getElementById("ArrivalTime").value =
+            entryDetails.ArrivalTime;
+            document.getElementById("deliveryInstructions").value =
+            entryDetails.deliveryInstructions;    
+          document.getElementById("postage").innerText = `₹${entryDetails.postage}`;
+          document.getElementById("receiverName").innerText = `₹${entryDetails.receiverName}`;
+          // Note: File input cannot be pre-filled for security reasons
+
+          // Update the entrysubmittime variable for later use
+          //entrysubmittime = entry.submitTime;
+          const consignmentPhotoPreview = document.getElementById(
+            "consignmentPhotoPreview"
+          );
+          if (entryDetails.consignmentPhotoPath) {
+            console.log(
+              "Consignment Photo URL:",
+              entryDetails.consignmentPhotoPath
+            );
+            consignmentPhotoPreview.src = entryDetails.consignmentPhotoPath; // This is the S3 URL
+            consignmentPhotoPreview.style.display = "block";
+          } else {
+            consignmentPhotoPreview.style.display = "none";
+          }
+          consignmentPhotoPreview.src = entryDetails.consignmentPhotoPath;
+          consignmentPhotoPreview.style.display = "block";
+
+          
+        })
+        .catch((error) =>
+          console.error("Error fetching entry details:", error)
+        );
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize flatpickr for date inputs
+        flatpickr("#StartDate", { dateFormat: "Y-m-d" });
+        flatpickr("#StartTime", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: "H:i",
+        });
+        flatpickr("#ArrivalDate", { dateFormat: "Y-m-d" });
+        flatpickr("#ArrivalTime", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: "H:i",
+        });
+      });
+
+      function updateTimeFormat() {
+        const timeFormat = document.getElementById("TimeFormat").value;
+        const arrivalTimeFormat =
+          document.getElementById("ArrivalTimeFormat").value;
+
+        flatpickr("#StartTime", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: timeFormat === "12" ? "h:i K" : "H:i",
+        });
+
+        flatpickr("#ArrivalTime", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: arrivalTimeFormat === "12" ? "h:i K" : "H:i",
+        });
+      }
+    </script>
+    <script>
+      fetch("/get-username")
+        .then((response) => response.json())
+        .then((data) => {
+          const welcomeMessage = document.getElementById("username");
+          welcomeMessage.innerText = data.username;
+        })
+        .catch((error) => console.error("Error fetching username:", error));
+
+      // Toggle the side menu when the button is clicked
+      const sideMenuButton = document.getElementById("side-menu-button");
+      const sideMenu = document.getElementById("side-menu");
+      sideMenuButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        sideMenu.classList.toggle("open");
+      });
+
+      // Close the side menu if clicked outside of it
+      document.addEventListener("click", (event) => {
+        if (
+          sideMenu.classList.contains("open") &&
+          !sideMenu.contains(event.target)
+        ) {
+          sideMenu.classList.remove("open");
+        }
+      });
+
+      function previewConsignmentPhoto() {
+        const input = document.getElementById("consignmentPhoto");
+        const preview = document.getElementById("consignmentPhotoPreview");
+
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.style.display = "block";
+          };
+
+          reader.readAsDataURL(input.files[0]);
+        } else {
+          // If no file is selected, show the default image
+          preview.src = "/images/packag_noun_002_26133.jpg";
+          preview.style.display = "block";
+        }
+      }
+
+      //         function getCurrentLocation() {
+      //   if (navigator.geolocation) {
+      //     navigator.geolocation.getCurrentPosition(
+      //       async (position) => {
+      //         const latitude = position.coords.latitude;
+      //         const longitude = position.coords.longitude;
+      //         const locationInput = document.getElementById('location');
+      //         locationInput.value = `${latitude}, ${longitude}`;
+
+      //         // Use reverse geocoding to get the address based on latitude and longitude
+      //         const address = await reverseGeocode(latitude, longitude);
+
+      //         // Update the address input field
+      //         const addressInput = document.getElementById('address');
+      //         addressInput.value = address;
+
+      //         // Update the city input field based on the new address
+      //         const cityInput = document.getElementById('city');
+      //         cityInput.value = await getCityFromAddress(address);
+      //       },
+      //       (error) => {
+      //         console.error('Error getting current location:', error);
+      //         alert('Error getting current location. Please enter manually.');
+      //       }
+      //     );
+      //   } else {
+      //     alert('Geolocation is not supported by this browser. Please enter manually.');
+      //   }
+      // }
+
+      // ... (your existing code)
+
+      // async function reverseGeocode(latitude, longitude) {
+      //   const apiKey = '5de792025e9c498184efcbd0510d4414'; // Replace with your actual OpenCage API key
+      //   const apiUrl = `https://api.opencagedata.com/geocode/v1/json?key=${apiKey}&q=${latitude}+${longitude}&language=en&pretty=1`;
+
+      //   try {
+      //     const response = await fetch(apiUrl);
+      //     const data = await response.json();
+
+      //     // Extract the formatted address from the geocoding result
+      //     const formattedAddress = data.results[0]?.formatted;
+      //     return formattedAddress;
+      //   } catch (error) {
+      //     console.error('Error fetching address:', error);
+      //     throw new Error('Error fetching address.');
+      //   }
+      // }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        getCities("IN");
+        // setupAddressChangeListener(); // Call the new function to set up the address change listener
+      });
+
+      // function setupAddressChangeListener() {
+      //     // Get the address and city input elements
+      //     const addressInput = document.getElementById('address');
+      //     const cityInput = document.getElementById('city');
+
+      //     // Add an event listener to the address input for changes
+      //     addressInput.addEventListener('input', async function () {
+      //         const address = addressInput.value;
+
+      //         // Check if the address is not empty before fetching and updating the city
+      //         if (address.trim() !== '') {
+      //             try {
+      //                 // Fetch the city based on the address
+      //                 const city = await getCityFromAddress(address);
+
+      //                 // Update the city input field
+      //                 cityInput.value = city;
+      //                 console.log('City updated based on address:', city);
+      //             } catch (error) {
+      //                 console.error('Error updating city:', error);
+      //             }
+      //         } else {
+      //             // Clear the city input if the address is empty
+      //             cityInput.value = '';
+      //         }
+      //     });
+      // }
+
+      // async function getCityFromAddress(address) {
+      //     const apiKey = '5de792025e9c498184efcbd0510d4414'; // Replace with your actual OpenCage API key
+      //     const apiUrl = `https://api.opencagedata.com/geocode/v1/json?key=${apiKey}&q=${encodeURIComponent(address)}&language=en&pretty=1`;
+
+      //     try {
+      //         const response = await fetch(apiUrl);
+      //         const data = await response.json();
+
+      //         // Extract the city from the geocoding result
+      //         const city = data.results[0]?.components?.city;
+
+      //         return city;
+      //     } catch (error) {
+      //         console.error('Error getting city from address:', error);
+      //         throw new Error('Error getting city from address.');
+      //     }
+      // }
+
+      async function getCities() {
+        const url =
+          "https://raw.githubusercontent.com/David-Haim/CountriesToCitiesJSON/master/countriesToCities.json";
+
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+
+          // Get the list of cities in India
+          const indianCities = data["India"];
+
+          // Sort the cities in alphabetical order
+          indianCities.sort();
+
+          // Populate the datalist with cities
+          const citiesList = document.getElementById("citiesList");
+          citiesList.innerHTML = ""; // Clear existing options
+
+          indianCities.forEach((city) => {
+            const option = document.createElement("option");
+            option.value = city;
+            citiesList.appendChild(option);
+          });
+
+          console.log("Cities in India:", indianCities);
+        } catch (error) {
+          console.error("Error getting cities:", error);
+        }
+      }
+
+      function updateSubmitButtonState() {
+        const submitButton = document.getElementById("submitButton");
+        const form = document.getElementById("consignmentForm");
+        const formData = new FormData(form);
+        const formDataEntries = Object.fromEntries(formData.entries());
+        const originalFormDataEntries = JSON.parse(localStorage.getItem("originalFormDataEntries") || "{}");
+        const isFormDataChanged = Object.keys(formDataEntries).some(key => formDataEntries[key] !== originalFormDataEntries[key]);
+        submitButton.disabled = !isFormDataChanged;
+      }
+
+      // Adding event listeners to form fields for input and change events
+      document.addEventListener("DOMContentLoaded", function () {
+        const formInputs = document.querySelectorAll(
+          "#consignmentForm input, #consignmentForm select, #consignmentForm textarea"
+        );
+        formInputs.forEach((input) => {
+          input.addEventListener("input", updateSubmitButtonState);
+          input.addEventListener("change", updateSubmitButtonState);
+        });
+      });
+    </script>
+
+    <script type="module">
+      import * as THREE from "https://threejs.org/build/three.module.js";
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, 300);
+      renderer.setClearColor(0xffffff);
+      document
+        .getElementById("visualizationContainer")
+        .appendChild(renderer.domElement);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+      directionalLight.position.set(0, 1, 0);
+      scene.add(directionalLight);
+
+      const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+      const cubeMaterial = new THREE.MeshBasicMaterial({
+        color: 0x654321,
+      });
+      const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      scene.add(cube);
+
+      const edges = new THREE.EdgesGeometry(cubeGeometry);
+      const line = new THREE.LineSegments(
+        edges,
+        new THREE.LineBasicMaterial({
+          color: 0x000000,
+        })
+      );
+      cube.add(line);
+
+      camera.position.z = 5;
+
+      let isDragging = false;
+      let previousMousePosition = {
+        x: 0,
+        y: 0,
+      };
+
+      document.addEventListener("mousedown", (event) => {
+        isDragging = true;
+        previousMousePosition = {
+          x: event.clientX,
+          y: event.clientY,
+        };
+      });
+
+      document.addEventListener("mouseup", () => {
+        isDragging = false;
+      });
+
+      document.addEventListener("mousemove", (event) => {
+        if (!isDragging) return;
+
+        const deltaMove = {
+          x: event.clientX - previousMousePosition.x,
+          y: event.clientY - previousMousePosition.y,
+        };
+        const rotationQuaternion = new THREE.Quaternion().setFromEuler(
+          new THREE.Euler(
+            toRadians(deltaMove.y),
+            toRadians(deltaMove.x),
+            0,
+            "XYZ"
+          )
+        );
+
+        cube.quaternion.multiplyQuaternions(
+          rotationQuaternion,
+          cube.quaternion
+        );
+
+        previousMousePosition = {
+          x: event.clientX,
+          y: event.clientY,
+        };
+      });
+
+      document.addEventListener("wheel", (event) => {
+        const zoomSpeed = 0.1;
+        camera.position.z += event.deltaY * zoomSpeed;
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        //   cube.rotation.x += 0.01;
+        //   cube.rotation.y += 0.01;
+
+        cube.scale.set(
+          document.getElementById("length").value || 1,
+          document.getElementById("breadth").value || 1,
+          document.getElementById("height").value || 1
+        );
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      function toRadians(degrees) {
+        return degrees * (Math.PI / 180);
+      }
+    </script>
+
+    <script>
+      async function UpdateConsignment() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const entrysubmittime = urlParams.get("entrysubmittime");
+
+        // Get the form data
+        const formData = new FormData(
+          document.getElementById("consignmentForm")
+        );
+
+        try {
+          // Send a POST request to update the entry
+          const response = await fetch(`/update-entry/${entrysubmittime}`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            console.log("Entry updated successfully");
+            alert("Submitted request successfully");
+            // Redirect to the /entries page after successful submission
+            window.location.href = "/entries";
+
+            // Handle success, e.g., show a success message
+          } else {
+            console.error("Failed to update entry:", response.statusText);
+            // Handle failure, e.g., show an error message
+          }
+        } catch (error) {
+          console.error("Error updating entry:", error);
+          // Handle error, e.g., show an error message
+        }
+      }
+    </script>
+
+<script>
+  function calculatePostage() {
+    const weight = parseFloat(document.getElementById("weight").value);
+    const weightUnit = document.getElementById("weightUnit").value;
+    const length = parseFloat(document.getElementById("length").value);
+    const breadth = parseFloat(document.getElementById("breadth").value);
+    const height = parseFloat(document.getElementById("height").value);
+    const cityInput = document.getElementById("cityInput").value;
+    const transport = document.getElementById("Transport").value;
+    const fromCity = document.getElementById("fromcity").value;
+    const startDate = document.getElementById("StartDate").value;
+    const startTime = document.getElementById("StartTime").value;
+    const arrivalDate = document.getElementById("ArrivalDate").value;
+    const arrivalTime = document.getElementById("ArrivalTime").value;
+
+    const data = {
+      weight,
+      weightUnit,
+      length,
+      breadth,
+      height,
+      cityInput,
+      transport,
+      fromCity,
+      startDate,
+      startTime,
+      arrivalDate,
+      arrivalTime
+    };
+
+    fetch("/calculate-postage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        document.getElementById("postage").innerText = `₹${data.cost}`;
+      })
+      .catch(error => console.error("Error calculating postage:", error));
+  }
+
+  
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", (event) => {
+    fetch("/getusernames")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data); // Log the data to check its structure
+        const receiverNameSelect = document.getElementById("receiverName");
+        data.receivers.forEach((receiver) => {
+          const option = document.createElement("option");
+          option.value = receiver.id;
+          option.textContent = receiver.name;
+          receiverNameSelect.appendChild(option);
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching receiver names:", error);
+      });
+  });
+</script>
+  </body>
+</html>

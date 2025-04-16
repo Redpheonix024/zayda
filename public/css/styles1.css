@@ -1,0 +1,139 @@
+/* Additional styles for the chatroom link */
+.chatroom-link {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 10px;
+  background-color: transparent;
+  border: none;
+  text-decoration: none;
+  z-index: 1001;
+}
+
+.chat-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.chat-icon:hover {
+  cursor: pointer;
+}
+
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f4f4f4;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  margin-top: 20px; /* Ensure there's enough space between the top and the H1 */
+  padding: 10px;
+  color: #333;
+  text-align: center;
+  background-color: transparent;
+  border-radius: 10px;
+  position: relative;
+  z-index: 2; /* Ensure H1 is above the background but below the modal */
+}
+
+form {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 300px;
+  margin: 20px auto;
+}
+
+label {
+  display: block;
+  margin: 10px 0 5px;
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+button {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #7e22c9;
+}
+
+ul {
+  text-align: center;
+}
+
+p {
+  margin-top: 20px;
+  text-align: center;
+}
+
+a {
+  color: #4caf50;
+}
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100%;
+  background-color: #51c55746;
+  /* Change the initial background-color to a less opaque value */
+  color: #fff;
+  transform: translateX(-100%);
+  transition: transform 0.9s ease-out, background-color 0.9s ease-out;
+  /* Add a transition for background-color */
+
+  z-index: 1000; /* Increase z-index */
+}
+
+.side-menu.open {
+  transform: translateX(0);
+  background-color: #000000ff;
+  z-index: 1002;
+  /* Change the background-color to a more opaque value when the menu is opened */
+}
+
+.side-menu a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.side-menu a:hover {
+  background-color: #444;
+}
+
+.side-menu-button {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1001; /* Ensure button is above the sidebar */
+}
+
+.side-menu-button:focus {
+  outline: none;
+}

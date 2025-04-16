@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Completed Packages</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        background-color: #f4f4f4;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .card h3 {
+        margin-top: 0;
+      }
+
+      .card p {
+        margin: 5px 0;
+        color: #555;
+      }
+
+      .section-title {
+        text-align: center;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="side-menu-button" id="side-menu-button">☰</button>
+    <div class="side-menu" id="side-menu">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/Entries">Requests</a>
+      <a href="/deleventeries">delevery Requests</a>
+      <a href="/completed_deliveries">completed</a>
+      <a href="/settings">Settings</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <a href="/chat/:username" class="chatroom-link" id="chatroom-link">
+      <img
+        src="/images/pngtree-chattingchatsmsmail--flat-color-icon--vector-icon-banner-t-png-image_1487005.jpg"
+        alt="Chatroom"
+        class="chat-icon"
+      />
+    </a>
+    <h1>Welcome to Your completed section, <span id="username"></span></h1>
+    <div class="container">
+      <h2 class="section-title">Completed as Sender</h2>
+      <div id="completed-senders-container"></div>
+
+      <h2 class="section-title">Completed as Receiver</h2>
+      <div id="completed-receivers-container"></div>
+
+      <h2 class="section-title">Completed as Delivery Agent</h2>
+      <div id="completed-delivery-agent-container"></div>
+    </div>
+
+    <script>
+      async function fetchData(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data from ${url}`);
+        }
+        return response.json();
+      }
+
+      function createCard(details) {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+                <h3>Consignment</h3>
+                <p><strong>Sender:</strong> ${details.sender}</p>
+                <p><strong>Receiver:</strong> ${details.receiver}</p>
+                <p><strong>Start Date:</strong> ${details.startDate}</p>
+                <p><strong>Arrival Date:</strong> ${details.arrivalDate}</p>
+                <h3>Delivery</h3>
+                <p><strong>Delivery Username:</strong> ${details.deliveryUsername}</p>
+                <p><strong>Means of Travel:</strong> ${details.meansOfTravel}</p>
+            `;
+
+        return card;
+      }
+
+      async function populateSection(sectionId, apiEndpoint) {
+        try {
+          const detailsList = await fetchData(apiEndpoint);
+          const container = document.getElementById(sectionId);
+
+          if (detailsList.length === 0) {
+            container.innerHTML =
+              "<p>No completed packages found in this category.</p>";
+          } else {
+            detailsList.forEach((details) => {
+              const card = createCard(details);
+              container.appendChild(card);
+            });
+          }
+        } catch (error) {
+          console.error("Error populating section:", error);
+        }
+      }
+
+      // Populate all sections
+      populateSection("completed-senders-container", "/completed-senders");
+      populateSection("completed-receivers-container", "/completed-receivers");
+      populateSection(
+        "completed-delivery-agent-container",
+        "/completed-delivery-agent"
+      );
+
+      fetch("/get-username")
+        .then((response) => response.json())
+        .then((data) => {
+          const welcomeMessage = document.getElementById("username");
+          welcomeMessage.innerText = data.username;
+        })
+        .catch((error) => console.error("Error fetching username:", error));
+
+      const sideMenuButton = document.getElementById("side-menu-button");
+      const sideMenu = document.getElementById("side-menu");
+      sideMenuButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        sideMenu.classList.toggle("open");
+      });
+
+      // Close the side menu if clicked outside of it
+      document.addEventListener("click", (event) => {
+        if (
+          sideMenu.classList.contains("open") &&
+          !sideMenu.contains(event.target)
+        ) {
+          sideMenu.classList.remove("open");
+        }
+      });
+    </script>
+  </body>
+</html>

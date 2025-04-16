@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+      .dropdown {
+  margin-bottom: 10px;
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.dropdown-toggle:hover {
+  background-color: #e0e0e0;
+}
+
+.dropdown-content {
+  display: none;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 5px 5px;
+}
+
+.arrow {
+  float: right;
+}
+      #delivery-location {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      #delivery-location .form-group {
+        margin-bottom: 15px;
+      }
+
+      #delivery-location label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      #delivery-location input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+      }
+
+      #map {
+        margin-top: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        height: 50%;
+      }
+      #delivery-location-form .btn-submit {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      #delivery-location-form .btn-submit:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="side-menu-button" id="side-menu-button">☰</button>
+    <div class="side-menu" id="side-menu">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/Entries">Requests</a>
+      <a href="/deleventeries">delivery Requests</a>
+      <a href="/settings">Settings</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <a href="/chat/:username" class="chatroom-link" id="chatroom-link">
+      <img
+        src="/images/pngtree-chattingchatsmsmail--flat-color-icon--vector-icon-banner-t-png-image_1487005.jpg"
+        alt="Chatroom"
+        class="chat-icon"
+      />
+    </a>
+    <div class="content">
+      <h1>
+        This consignment is accepted by the traveller,
+        <span id="username"></span>
+      </h1>
+      <h3>details of the trip</h3>
+
+      <div class="dropdown">
+      <h2 class="dropdown-toggle">Consignment Details <span class="arrow">▼</span></h2>
+      <div class="dropdown-content" id="consignment-details">
+        <p>Consignment id: <span id="consignmentid"></span></p>
+        <p>From City: <span id="fromcity"></span></p>
+        <p>Weight: <span id="weight"></span> <span id="weightUnit"></span></p>
+        <p>
+          Dimensions: <span id="length"></span> x <span id="breadth"></span> x
+          <span id="height"></span>
+        </p>
+
+        <p>To City: <span id="cityInput"></span></p>
+        <p>Transport: <span id="Transport"></span></p>
+        <p>Start Date: <span id="StartDate"></span></p>
+        <p>Start Time: <span id="StartTime"></span></p>
+        <p>Arrival Date: <span id="ArrivalDate"></span></p>
+        <p>Arrival Time: <span id="ArrivalTime"></span></p>
+        <p>Submission Time: <span id="submitTime"></span></p>
+      </div>
+    </div>
+    
+
+    <div class="dropdown">
+      <h2 class="dropdown-toggle">Accepted Delivery Details <span class="arrow">▼</span></h2>
+      <div class="dropdown-content" id="accepted-delivery">
+        <p>Accepted by: <span id="acceptedBy"></span></p>
+        <p>Accepted at: <span id="acceptedAt"></span></p>
+        <p>Sender Acceptance Time: <span id="senderAcceptanceTime"></span></p>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <h2 class="dropdown-toggle">Delivery Route Details <span class="arrow">▼</span></h2>
+      <div class="dropdown-content" id="delivery-route">
+        <p>Delivery ID: <span id="DeliveryID"></span></p>
+        <p>Current Location: <span id="currentLocation"></span></p>
+        <p>Traveling Location: <span id="travelingLocation"></span></p>
+        <p>Means of Travel: <span id="meansOfTravel"></span></p>
+        <p>Start Date: <span id="deliveryStartDate"></span></p>
+        <p>Start Time: <span id="deliveryStartTime"></span></p>
+        <p>Arrival Date: <span id="deliveryArrivalDate"></span></p>
+        <p>Arrival Time: <span id="deliveryArrivalTime"></span></p>
+      </div>
+    </div>
+    <div class="content">
+      <h2>Delivery Location</h2>
+      <div id="delivery-location">
+        <p>You can recive the consignment from:</p>
+        <div class="form-group">
+          <label for="city">City:</label>
+          <input type="text" id="city" name="city" readonly />
+        </div>
+        <div id="map" style="width: 100%; height: 400px"></div>
+        <p>
+          The map shows the delivery area within the city. You cannot select a
+          location outside this area.
+        </p>
+        <div
+          id="surroundings-description"
+          style="
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+          "
+        >
+          <!-- Surroundings description will be updated here -->
+        </div>
+      </div>
+      <div class="form-group" style="margin-top: 15px">
+        <label>Minimum Receiving Time:</label>
+        <span id="receivingTimeMin"></span>
+      </div>
+      <div class="form-group" style="margin-top: 15px">
+        <label>Maximum Receiving Time:</label>
+        <span id="receivingTimeMax"></span>
+      </div>
+      <button type="submit" class="btn-submit">
+        Confirm Delivery Location
+      </button>
+      <button type="submit" class="btn-submit">Cancel</button>
+    </div>
+
+    <script>
+            fetch("/get-username")
+        .then((response) => response.json())
+        .then((data) => {
+          const welcomeMessage = document.getElementById("username");
+          welcomeMessage.innerText = data.username;
+        })
+        .catch((error) => console.error("Error fetching username:", error));
+      const cityInput = document.getElementById("city");
+      const minTimeInput = document.getElementById("receivingTimeMin");
+      const maxTimeInput = document.getElementById("receivingTimeMax");
+      const confirmButton = document.querySelector(".btn-submit");
+      const welcomeMessage = document.getElementById("username");
+
+
+      document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+  toggle.addEventListener('click', function() {
+    this.classList.toggle('active');
+    const content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+      this.querySelector('.arrow').textContent = '▼';
+    } else {
+      content.style.display = "block";
+      this.querySelector('.arrow').textContent = '▲';
+    }
+  });
+});
+      // Fetch username
+
+
+      // Toggle the side menu when the button is clicked
+      const sideMenuButton = document.getElementById("side-menu-button");
+      const sideMenu = document.getElementById("side-menu");
+      sideMenuButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        sideMenu.classList.toggle("open");
+      });
+
+      // Close the side menu if clicked outside of it
+      document.addEventListener("click", (event) => {
+        if (
+          sideMenu.classList.contains("open") &&
+          !sideMenu.contains(event.target)
+        ) {
+          sideMenu.classList.remove("open");
+        }
+      });
+
+      // Function to initialize the map
+      // Function to initialize the map
+      function initMap(city, lat, lng) {
+        console.log(
+          `Initializing map for ${city} at coordinates: ${lat}, ${lng}`
+        );
+        const cityInput = document.getElementById("city");
+        cityInput.value = city;
+
+        // Create the map with a higher zoom level
+        const map = L.map("map", {
+          zoomControl: true,
+          dragging: true,
+          touchZoom: true,
+          doubleClickZoom: false,
+          scrollWheelZoom: true,
+          boxZoom: true,
+          keyboard: false,
+        }).setView([lat, lng], 15); // Increased zoom level to 15
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
+        }).addTo(map);
+
+        // Add a marker at the specified location
+        const marker = L.marker([lat, lng]).addTo(map);
+
+        // Add a circle to highlight the area
+        L.circle([lat, lng], {
+          color: "red",
+          fillColor: "#f03",
+          fillOpacity: 0.2,
+          radius: 50, // 500 meters radius
+        }).addTo(map);
+
+        // Fit the map to show the marker and circle
+        const bounds = L.latLngBounds([marker.getLatLng()]);
+        map.fitBounds(bounds.pad(0.1)); // Add some padding around the bounds
+
+        console.log("Map initialized successfully");
+      }
+
+      // Function to update surroundings description based on the marker's position
+
+      // Function to geocode a city name
+      function geocodeCity(city) {
+        console.log(`Geocoding city: ${city}`);
+        return fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            city
+          )}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.length > 0) {
+              console.log(
+                `Geocoding successful. Coordinates: ${data[0].lat}, ${data[0].lon}`
+              );
+              return {
+                lat: parseFloat(data[0].lat),
+                lon: parseFloat(data[0].lon),
+              };
+            } else {
+              console.error("Geocoding failed: City not found");
+              throw new Error("City not found");
+            }
+          });
+      }
+
+      // Fetch consignment and delivery details
+      fetch("/get-accepted-consignmentsen")
+        .then((response) => response.json())
+        .then((data) => {
+          // Populate consignment details
+          document.getElementById("receivingTimeMin").textContent =
+            data.deliveryLocation.receivingTimeMin || "Not specified";
+          document.getElementById("receivingTimeMax").textContent =
+            data.deliveryLocation.receivingTimeMax || "Not specified";
+          document.getElementById("consignmentid").textContent = data._id;
+          document.getElementById("fromcity").textContent = data.fromcity;
+          document.getElementById("weight").textContent = data.weight;
+          document.getElementById("weightUnit").textContent = data.weightUnit;
+          document.getElementById("length").textContent = data.length;
+          document.getElementById("breadth").textContent = data.breadth;
+          document.getElementById("height").textContent = data.height;
+          document.getElementById("cityInput").textContent = data.cityInput;
+          document.getElementById("Transport").textContent = data.Transport;
+          document.getElementById("StartDate").textContent = data.StartDate;
+          document.getElementById("StartTime").textContent = data.StartTime;
+          document.getElementById("ArrivalDate").textContent = data.ArrivalDate;
+          document.getElementById("ArrivalTime").textContent = data.ArrivalTime;
+          document.getElementById("submitTime").textContent = new Date(
+            data.submitTime
+          ).toLocaleString();
+
+          // Populate accepted delivery details
+          const acceptedDelivery = data.acceptedDeliveries[0];
+          document.getElementById("acceptedBy").textContent =
+            acceptedDelivery.username;
+          document.getElementById("acceptedAt").textContent = new Date(
+            acceptedDelivery.acceptedAt
+          ).toLocaleString();
+          document.getElementById("senderAcceptanceTime").textContent =
+            new Date(acceptedDelivery.senderAcceptanceTime).toLocaleString();
+           document.getElementById("username").textContent= acceptedDelivery.username; ;
+
+          // Fetch and populate delivery route details
+          console.log(acceptedDelivery.deliveryRouteId);
+          return fetch(
+            `/get-delivery-route/${acceptedDelivery.deliveryRouteId}`
+          );
+        })
+        .then((response) => response.json())
+        .then((deliveryRoute) => {
+          document.getElementById("DeliveryID").textContent = deliveryRoute._id;
+          document.getElementById("currentLocation").textContent =
+            deliveryRoute.currentLocation;
+          document.getElementById("travelingLocation").textContent =
+            deliveryRoute.travelingLocation;
+          document.getElementById("meansOfTravel").textContent =
+            deliveryRoute.meansOfTravel;
+          document.getElementById("deliveryStartDate").textContent =
+            deliveryRoute.startDate;
+          document.getElementById("deliveryStartTime").textContent =
+            deliveryRoute.startTime;
+          document.getElementById("deliveryArrivalDate").textContent =
+            deliveryRoute.arrivalDate;
+          document.getElementById("deliveryArrivalTime").textContent =
+            deliveryRoute.arrivalTime;
+
+          // Get the 'from city' from the populated element
+          const fromCity = document.getElementById("fromcity").textContent;
+          console.log(`From city retrieved from DOM: ${fromCity}`);
+
+          // Geocode the city and initialize the map
+          return geocodeCity(fromCity);
+        })
+        .then((coords) => {
+          const fromCity = document.getElementById("fromcity").textContent;
+          console.log(`Geocoding completed. Initializing map...`);
+          initMap(fromCity, coords.lat, coords.lon);
+        })
+        .catch((error) => {
+          console.error(
+            "Error fetching consignment and delivery details:",
+            error
+          );
+          alert(
+            "An error occurred while loading the map. Please try again later."
+          );
+        });
+
+      confirmButton.addEventListener("click", function () {
+        const deliveryId = document.getElementById("DeliveryID").textContent;
+        const consignmentId =
+          document.getElementById("consignmentid").textContent;
+        const location = document.getElementById(
+          "surroundings-description"
+        ).textContent;
+
+        const data = {
+          deliveryId,
+          consignmentId,
+        };
+        console.log(data);
+
+        fetch("/confirm-delivery-locationsender", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            alert("Delivery location confirmed successfully");
+            console.log(result);
+            setTimeout(function () {
+              window.location.href = "/dashboard";
+            }, 2000);
+          })
+          .catch((error) => {
+            console.error("Error confirming delivery location:", error);
+            alert(
+              "An error occurred while confirming the delivery location. Please try again later."
+            );
+          });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delivery Details</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Add any additional styles you need -->
+    <style>
+      .content {
+        margin: 20px;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      label {
+        margin-bottom: 8px;
+      }
+
+      input {
+        padding: 8px;
+        margin-bottom: 16px;
+      }
+
+      button {
+        padding: 10px;
+        background-color: #4caf50;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 16px;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="side-menu-button" id="side-menu-button">☰</button>
+    <div class="side-menu" id="side-menu">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/Entries">Requests</a>
+      <a href="/deleventeries">delevery Requests</a>
+      <a href="/completed_deliveries">completed</a>
+      <a href="/settings">Settings</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <a href="/chat/:username" class="chatroom-link" id="chatroom-link">
+      <img
+        src="/images/pngtree-chattingchatsmsmail--flat-color-icon--vector-icon-banner-t-png-image_1487005.jpg"
+        alt="Chatroom"
+        class="chat-icon"
+      />
+    </a>
+    <div class="content">
+      <h1>Delivery Details</h1>
+      <h2>Enter where you are going, <span id="username"></span></h2>
+      <form id="deliveryForm">
+        <label for="Fromcity">Travelling from:</label>
+        <input
+          type="text"
+          id="FromInput"
+          name="cityInput"
+          list="citiesList"
+          autocomplete="off"
+          required
+        />
+        <datalist id="citiesList"></datalist>
+
+        <label for="ToInput">Going to:</label>
+        <input
+          type="text"
+          id="Tocity"
+          name="cityInput"
+          list="citiesList"
+          autocomplete="off"
+          required
+        />
+        <datalist id="citiesList"></datalist>
+
+        <label for="Transport" style="width: 100%; margin-bottom: 10px"
+          >Means of Transport:</label
+        >
+        <select id="Transport" name="Transport" required>
+          <option value="">Select an option</option>
+          <option value="road">Road</option>
+          <option value="rail">Rail</option>
+          <option value="Bus">Bus</option>
+        </select>
+
+        <label for="StartDate">Journey Start Date:</label>
+        <input type="text" id="StartDate" name="StartDate" required />
+        <!-- 
+        <select id="TimeFormat" onchange="updateTimeFormat()">
+          <option value="24">24-hour format</option>
+          <option value="12">12-hour format</option>
+        </select> -->
+        <label for="ArrivalTime">Journey start Time:</label>
+        <input type="text" id="StartTime" name="StartTime" required />
+
+        <label for="ArrivalDate">Journey Arrival Date:</label>
+        <input type="text" id="ArrivalDate" name="ArrivalDate" required />
+
+        <label for="ArrivalTime">Journey Arrival Time:</label>
+        <!-- <select id="ArrivalTimeFormat" onchange="updateTimeFormat()">
+          <option value="24">24-hour format</option>
+          <option value="12">12-hour format</option>
+        </select> -->
+        <input type="text" id="ArrivalTime" name="ArrivalTime" required />
+
+        <button type="button" onclick="submitDeliveryDetails()">Submit</button>
+      </form>
+    </div>
+
+    <script>
+      fetch("/get-username")
+        .then((response) => response.json())
+        .then((data) => {
+          const welcomeMessage = document.getElementById("username");
+          welcomeMessage.innerText = data.username;
+        })
+        .catch((error) => console.error("Error fetching username:", error));
+
+      // Toggle the side menu when the button is clicked
+      const sideMenuButton = document.getElementById("side-menu-button");
+      const sideMenu = document.getElementById("side-menu");
+      sideMenuButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        sideMenu.classList.toggle("open");
+      });
+
+      // Close the side menu if clicked outside of it
+      document.addEventListener("click", (event) => {
+        if (
+          sideMenu.classList.contains("open") &&
+          !sideMenu.contains(event.target)
+        ) {
+          sideMenu.classList.remove("open");
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize flatpickr for date inputs
+        flatpickr("#StartDate", { dateFormat: "Y-m-d" });
+        flatpickr("#StartTime", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: "H:i",
+        });
+        flatpickr("#ArrivalDate", { dateFormat: "Y-m-d" });
+        flatpickr("#ArrivalTime", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: "H:i",
+        });
+      });
+
+      function updateTimeFormat() {
+        const timeFormat = document.getElementById("TimeFormat").value;
+        const arrivalTimeFormat =
+          document.getElementById("ArrivalTimeFormat").value;
+
+        flatpickr("#StartTime", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: timeFormat === "12" ? "h:i K" : "H:i",
+        });
+
+        flatpickr("#ArrivalTime", {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: arrivalTimeFormat === "12" ? "h:i K" : "H:i",
+        });
+      }
+
+      function submitDeliveryDetails() {
+        try {
+          const form = document.getElementById("deliveryForm");
+
+          // Check form validity before proceeding
+          if (!form.checkValidity()) {
+            console.error(
+              "Form validation failed. Please fill in all required fields."
+            );
+            form.reportValidity();
+            return;
+          }
+
+          // Extract form data
+          const formData = {
+            currentLocation: document.getElementById("FromInput").value,
+            travelingLocation: document.getElementById("Tocity").value,
+            meansOfTravel: document.getElementById("Transport").value,
+            startDate: document.getElementById("StartDate").value,
+            startTime: document.getElementById("StartTime").value,
+            arrivalDate: document.getElementById("ArrivalDate").value,
+            arrivalTime: document.getElementById("ArrivalTime").value,
+          };
+
+          // Send a POST request to the server
+          fetch("/submitDeliveryDetails", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data.message);
+              alert("Submited profile succesfully");
+              window.location.href = "/deleventeries";
+            })
+            .catch((error) => {
+              console.error("Error submitting delivery details:", error);
+            });
+        } catch (error) {
+          console.error("Error submitting delivery details:", error);
+        }
+      }
+
+      async function getCities() {
+        const url =
+          "https://raw.githubusercontent.com/David-Haim/CountriesToCitiesJSON/master/countriesToCities.json";
+
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+
+          // Get the list of cities in India
+          const indianCities = data["India"];
+
+          // Sort the cities in alphabetical order
+          indianCities.sort();
+
+          // Populate the datalist with cities
+          const citiesList = document.getElementById("citiesList");
+          citiesList.innerHTML = ""; // Clear existing options
+
+          indianCities.forEach((city) => {
+            const option = document.createElement("option");
+            option.value = city;
+            citiesList.appendChild(option);
+          });
+
+          console.log("Cities in India:", indianCities);
+        } catch (error) {
+          console.error("Error getting cities:", error);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        getCities("IN");
+        //setupAddressChangeListener(); // Call the new function to set up the address change listener
+      });
+    </script>
+    <script>
+      document
+        .getElementById("FromInput")
+        .addEventListener("change", function () {
+          var input = this.value;
+          var options = document.getElementById("citiesList").childNodes;
+          var found = false;
+          for (var i = 0; i < options.length; i++) {
+            if (options[i].value === input) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            this.value = "";
+            alert("Please select a city from the list.");
+          }
+        });
+      document.getElementById("Tocity").addEventListener("change", function () {
+        var input = this.value;
+        var options = document.getElementById("citiesList").childNodes;
+        var found = false;
+        for (var i = 0; i < options.length; i++) {
+          if (options[i].value === input) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          this.value = "";
+          alert("Please select a city from the list.");
+        }
+      });
+    </script>
+  </body>
+</html>

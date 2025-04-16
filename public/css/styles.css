@@ -1,0 +1,357 @@
+:root {
+  /* Light theme variables */
+  --bg-color: #f4f4f4;
+  --text-color: #333;
+  --form-bg: #fff;
+  --input-bg: #fff;
+  --input-border: #ddd;
+  --button-bg: #4caf50;
+  --button-color: #fff;
+  --popup-bg: #fefefe;
+  --popup-border: #888;
+  --close-color: #aaa;
+  --box-shadow: rgba(0, 0, 0, 0.1);
+  --link-color: #4caf50;
+  --h1-color: #333;
+  --popup-overlay-bg: rgba(0, 0, 0, 0.4);
+  --popup-text-color: #333;
+  --popup-close-hover: #000;
+  --popup-input-bg: #fff;
+  --popup-input-color: #333;
+  --popup-button-disabled: #cccccc;
+  --status-message-color: #666;
+}
+
+[data-theme="dark"] {
+  /* Dark theme variables */
+  --bg-color: #1a1a1a;
+  --text-color: #fff;
+  --form-bg: #2d2d2d;
+  --input-bg: #3d3d3d;
+  --input-border: #555;
+  --button-bg: #4caf50;
+  --button-color: #fff;
+  --popup-bg: #2d2d2d;
+  --popup-border: #555;
+  --close-color: #888;
+  --box-shadow: rgba(255, 255, 255, 0.1);
+  --link-color: #6ee673;
+  --h1-color: #fff;
+  --popup-overlay-bg: rgba(0, 0, 0, 0.7);
+  --popup-text-color: #fff;
+  --popup-close-hover: #fff;
+  --popup-input-bg: #3d3d3d;
+  --popup-input-color: #fff;
+  --popup-button-disabled: #555555;
+  --status-message-color: #aaa;
+}
+
+/* Add smooth transitions */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Update existing styles to use CSS variables */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: "Arial", sans-serif;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+form {
+  background-color: var(--form-bg);
+  box-shadow: 0 0 10px var(--box-shadow);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 300px;
+  margin: 20px auto;
+}
+
+input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+button {
+  background-color: var(--button-bg);
+  color: var(--button-color);
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #7e22c9;
+}
+
+.popup {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--popup-overlay-bg);
+  overflow: auto;
+}
+
+.popup-content {
+  position: relative;
+  background-color: var(--popup-bg);
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid var(--popup-border);
+  width: 80%;
+  max-width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px var(--box-shadow);
+}
+
+.popup-content h2 {
+  color: var(--popup-text-color);
+}
+
+.popup-content label {
+  color: var(--popup-text-color);
+}
+
+.popup-content input,
+.popup-content select {
+  background-color: var(--popup-input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--popup-input-color);
+}
+
+.popup-content button:disabled {
+  background-color: var(--popup-button-disabled);
+  cursor: not-allowed;
+}
+
+.close {
+  color: var(--close-color);
+}
+
+.close:hover,
+.close:focus {
+  color: var(--popup-close-hover);
+}
+
+.status-message {
+  color: var(--status-message-color);
+}
+
+.content {
+  margin: 20px;
+  position: relative;
+  z-index: 0; /* Keep content below the modal */
+}
+
+#deliveryOptionModal {
+  display: none;
+  position: fixed;
+  margin-top: 70px;
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1001; /* Ensure it's above other content */
+  width: 80%;
+  max-width: 600px;
+  max-height: 80vh; /* Limit modal height to 80% of viewport */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.column {
+  flex: 1 1 45%; /* Adjusted to allow for better wrapping */
+  padding: 10px;
+  text-align: center; /* Center text and images */
+}
+
+.column img {
+  width: 100%;
+  max-width: 100px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.row {
+  flex: 1 1 100%; /* Row takes full width */
+  padding: 10px;
+  text-align: center; /* Center text and images */
+}
+
+.row img {
+  width: 100%;
+  max-width: 100px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+/* Overlay remains the same */
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999; /* Lower z-index to keep it below the sidebar and header */
+}
+
+.column,
+.row {
+  flex: 1 1 45%; /* Adjusted to allow for better wrapping */
+  padding: 10px;
+  text-align: center; /* Center text and images */
+}
+.row {
+  flex: 1;
+  padding: 0 10px;
+  align-content: left;
+}
+
+.column img {
+  width: 100%;
+  max-width: 100px;
+  display: block;
+  margin: 0 auto;
+  cursor: pointer;
+}
+.row img {
+  width: 100%;
+  max-width: 100px;
+  display: block;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+/* Additional styles for the chatroom link */
+.chatroom-link {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 10px;
+  background-color: transparent;
+  border: none;
+  text-decoration: none;
+  z-index: 1001;
+}
+
+.chat-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.chat-icon:hover {
+  cursor: pointer;
+}
+
+h1 {
+  margin-top: 20px; /* Ensure there's enough space between the top and the H1 */
+  padding: 10px;
+  color: var(--h1-color);
+  text-align: center;
+  background-color: transparent;
+  border-radius: 10px;
+  position: relative;
+  z-index: 2; /* Ensure H1 is above the background but below the modal */
+}
+
+label {
+  display: block;
+  margin: 10px 0 5px;
+  color: var(--text-color);
+}
+
+ul {
+  text-align: center;
+}
+
+p {
+  margin-top: 20px;
+  text-align: center;
+}
+
+a {
+  color: var(--link-color);
+}
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100%;
+  background-color: #51c55746;
+  /* Change the initial background-color to a less opaque value */
+  color: #fff;
+  transform: translateX(-100%);
+  transition: transform 0.9s ease-out, background-color 0.9s ease-out;
+  /* Add a transition for background-color */
+
+  z-index: 1000; /* Increase z-index */
+}
+
+.side-menu.open {
+  transform: translateX(0);
+  background-color: #000000ff;
+  z-index: 1002;
+  /* Change the background-color to a more opaque value when the menu is opened */
+}
+
+.side-menu a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.side-menu a:hover {
+  background-color: #444;
+}
+
+.side-menu-button {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1001; /* Ensure button is above the sidebar */
+}
+
+.side-menu-button:focus {
+  outline: none;
+}

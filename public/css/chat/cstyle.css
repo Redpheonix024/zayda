@@ -1,0 +1,151 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
+  margin: 0;
+  padding: 20px;
+}
+
+#chat {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.active-users,
+.controls {
+  padding: 10px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+ul {
+  list-style-type: none;
+  margin: 50;
+  padding: 0;
+}
+
+li {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+#users li {
+  background-color: #f4f4f4;
+  cursor: pointer;
+}
+
+#users li:hover {
+  background-color: #e0e0e0;
+}
+
+#messages li {
+  background-color: #e6f7ff;
+}
+
+#messages .sent {
+  background-color: #daf8cb;
+  text-align: right;
+}
+
+input,
+button {
+  padding: 10px;
+  /* width: calc(100% - 20px); */
+  margin: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+button {
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  border: none;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #chat {
+    border-radius: 0;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+
+  .active-users,
+  .controls {
+    padding: 8px;
+    border-bottom: none;
+  }
+
+  input,
+  button {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  #messages li {
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+}
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100%;
+  background-color: #51c55746;
+  /* Change the initial background-color to a less opaque value */
+  color: #fff;
+  transform: translateX(-100%);
+  transition: transform 0.9s ease-out, background-color 0.9s ease-out;
+  /* Add a transition for background-color */
+  z-index: 100;
+}
+
+.side-menu.open {
+  transform: translateX(0);
+  background-color: #000000ff;
+  /* Change the background-color to a more opaque value when the menu is opened */
+}
+
+.side-menu a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.side-menu a:hover {
+  background-color: #444;
+}
+
+.side-menu-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.side-menu-button:focus {
+  outline: none;
+}

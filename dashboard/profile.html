@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- your existing head content -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile Completion</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      #progress-bar {
+        background-color: #ddd;
+        height: 20px;
+        margin-bottom: 20px;
+      }
+
+      #progress-fill {
+        height: 100%;
+        background-color: #4caf50;
+        width: 0;
+        transition: width 0.3s ease;
+      }
+
+      form {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f2f2f2;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 16px;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      #profile-picture {
+        max-width: 200px;
+        max-height: 200px;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="side-menu-button" id="side-menu-button">☰</button>
+    <div class="side-menu" id="side-menu">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/Entries">Requests</a>
+      <a href="/deleventeries">delevery Requests</a>
+      <a href="/settings">Settings</a>
+      <a href="/logout">Logout</a>
+    </div>
+
+    <script>
+      const sideMenuButton = document.getElementById("side-menu-button");
+      const sideMenu = document.getElementById("side-menu");
+      sideMenuButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        sideMenu.classList.toggle("open");
+      });
+
+      // Close the side menu if clicked outside of it
+      document.addEventListener("click", (event) => {
+        if (
+          sideMenu.classList.contains("open") &&
+          !sideMenu.contains(event.target)
+        ) {
+          sideMenu.classList.remove("open");
+        }
+      });
+    </script>
+
+    <script>
+      // Fetch the username from the server
+      fetch("/get-username")
+        .then((response) => response.json())
+        .then((data) => {
+          const welcomeMessage = document.getElementById("username");
+          welcomeMessage.innerText = data.username;
+        })
+        .catch((error) => console.error("Error fetching username:", error));
+    </script>
+
+    <h1>Enter your profile details, <span id="username"></span></h1>
+    <form id="profileForm" action="/submit-profile" method="post">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="age">Age:</label>
+      <input type="number" id="age" name="age" required />
+
+      <label for="gender">Gender:</label>
+      <select id="gender" name="gender" required>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label for="city">City:</label>
+      <input type="text" id="city" name="city" required />
+
+      <!-- Include the default profile picture directly -->
+      <img
+        id="profile-picture"
+        src="/images/default-avatar-icon-of-social-media-user-vector.jpg"
+        alt="Profile Picture Preview"
+      />
+
+      <label for="profilePicture">Profile Picture:</label>
+      <input
+        type="file"
+        id="profilePicture"
+        name="profilePicture"
+        accept="image/*"
+        required
+        onchange="previewProfilePicture(event)"
+      />
+      <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <script>
+      async function submitForm() {
+        const form = document.getElementById("profileForm");
+        const formData = new FormData(form);
+
+        // Get the file input element
+        const profilePictureInput = document.getElementById("profilePicture");
+        const profilePictureFile = profilePictureInput;
+
+        // Append the file to the FormData object
+        formData.append("profilePicture", profilePictureFile);
+
+        try {
+          const response = await fetch("/submit-profile", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert("Submited profile succesfully");
+            // Additional actions if needed
+          } else {
+            alert("Failed to submit profile. Please try again.");
+          }
+        } catch (error) {
+          console.error("Error submitting profile:", error);
+          // alert('Internal server error. Please try again later.');
+        }
+      }
+    </script>
+    <script>
+      // Fetch the user data from the server
+      fetch("/get-user-data")
+        .then((response) => response.json())
+        .then((data) => {
+          const profileForm = document.getElementById("profileForm");
+          const profilePicture = document.getElementById("profile-picture");
+
+          // Check if data is available
+          if (data) {
+            // Set the values in the form fields
+            profileForm.elements["name"].value = data.name;
+            profileForm.elements["email"].value = data.email;
+            profileForm.elements["age"].value = data.age;
+            profileForm.elements["gender"].value = data.gender;
+            profileForm.elements["city"].value = data.city;
+
+            // Display profile picture if available, otherwise show the default image
+            if (data.profilePicture && data.profilePicture.path) {
+              // Use the full S3 URL as the image source
+              profilePicture.src = data.profilePicture.path;
+            } else {
+              // Replace this placeholder with the correct path of your default image
+              profilePicture.src =
+                "images/default-avatar-icon-of-social-media-user-vector.jpg";
+            }
+          } else {
+            // If no data is available, fill with example values and set default image
+            profileForm.elements["name"].value = "John Doe";
+            profileForm.elements["email"].value = "john@example.com";
+            profileForm.elements["age"].value = "25";
+            profileForm.elements["gender"].value = "male";
+            profileForm.elements["city"].value = "Example City";
+            // Replace this placeholder with the correct path of your default image
+            profilePicture.src =
+              "images/default-avatar-icon-of-social-media-user-vector.jpg";
+          }
+        })
+        .catch((error) => console.error("Error fetching user data:", error));
+
+      // Function to preview the selected profile picture
+      function previewProfilePicture(event) {
+        const profilePicture = document.getElementById("profile-picture");
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            profilePicture.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    </script>
+  </body>
+</html>

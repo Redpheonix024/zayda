@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Entries</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/item/styles.css" />
+    <style></style>
+  </head>
+
+  <body>
+    <button class="side-menu-button" id="side-menu-button">☰</button>
+    <div class="side-menu" id="side-menu">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/Entries">Requests</a>
+      <a href="/deliveries">Delivery Requests</a>
+      <a href="/settings">Settings</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <div class="content">
+      <h1>Welcome to Your Dashboard, <span id="username"></span></h1>
+      <h2>Available Packages for Delivery</h2>
+      <div class="package-container" id="package-container">
+        <!-- Package cards will be inserted here dynamically -->
+      </div>
+    </div>
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Request</h2>
+          <span class="close">&times;</span>
+          <span
+            id="accepted-sign"
+            style="display: none; color: green; font-weight: bold"
+            >✓ Accepted</span
+          >
+        </div>
+        <div class="modal-body">
+          <p id="modal-consignment-details"></p>
+          <p id="modal-delivery-details"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ignore">Ignore</button>
+          <button id="acceptBtn" class="btn btn-accept">Accept</button>
+          <button id="removeBtn" class="btn btn-remove" style="display: none">
+            Remove Agreement
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="confirmationModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Confirmation</h2>
+          <span class="close-confirmation-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p id="confirmation-message"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ok">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Fetch the username from the server
+      fetch("/get-username")
+        .then((response) => response.json())
+        .then((data) => {
+          const welcomeMessage = document.getElementById("username");
+          if (welcomeMessage) {
+            welcomeMessage.innerText = data.username;
+          } else {
+            console.error("Username element not found");
+          }
+        })
+        .catch((error) => console.error("Error fetching username:", error));
+
+      fetch("/get-matched-packages")
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Fetched Data:", data);
+          const packageContainer = document.getElementById("package-container");
+
+          if (data.matchedPackages.length === 0) {
+            packageContainer.innerHTML = "<p>No match found</p>";
+          } else {
+            data.matchedPackages.forEach(({ consignment: cons, delivery }) => {
+              // Assign the consignment to the variable defined in the higher scope
+              consignment = cons;
+              // Create consignment card
+              const consignmentCard = document.createElement("div");
+              consignmentCard.classList.add("package-card");
+              consignmentCard.innerHTML = `
+              <div class="package-header">
+                <h3>Consignment from ${cons.fromcity} to ${cons.cityInput}</h3>
+                <span class="accepted-sign" style="display: none; color: green; font-weight: bold">✓ Accepted</span>
+              </div>
+              <p><strong>Weight:</strong> ${cons.weight} ${cons.weightUnit}</p>
+              <p><strong>Dimensions:</strong> ${cons.length} x ${cons.breadth} x ${cons.height} cm</p>
+              <p><strong>Transport:</strong> ${cons.Transport}</p>
+              <p><strong>Start Date:</strong> ${cons.StartDate}</p>
+              <p><strong>Start Time:</strong> ${cons.StartTime}</p>
+              <p><strong>Arrival Date:</strong> ${cons.ArrivalDate}</p>
+              <p><strong>Arrival Time:</strong> ${cons.ArrivalTime}</p>
+              <p><strong>Commission:</strong> &#8377;${cons.deliverycost}</p>
+              <img src="${cons.consignmentPhotoPath}" alt="Consignment Photo" onerror="this.onerror=null;this.src='/images/default.png';">
+`;
+              consignmentCard.addEventListener("click", () =>
+                openModal(cons, delivery)
+              );
+              packageContainer.appendChild(consignmentCard);
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+        });
+
+      // Toggle the side menu when the button is clicked
+      const sideMenuButton = document.getElementById("side-menu-button");
+      const sideMenu = document.getElementById("side-menu");
+      sideMenuButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        sideMenu.classList.toggle("open");
+      });
+
+      // Modal functionality
+      // Existing JavaScript content
+
+      // Modal functionality for the first modal
+      const modal = document.getElementById("myModal");
+      const modalConsignmentDetails = document.getElementById(
+        "modal-consignment-details"
+      );
+      const modalDeliveryDetails = document.getElementById(
+        "modal-delivery-details"
+      );
+      const closeModalBtn = document.querySelector(".close");
+      const ignoreBtn = document.querySelector(".btn-ignore");
+      const acceptBtn = document.querySelector(".btn-accept");
+      const confirmationModal = document.getElementById("confirmationModal");
+      const confirmationMessage = document.getElementById(
+        "confirmation-message"
+      );
+      const closeConfirmationModalBtn = document.querySelector(
+        ".close-confirmation-modal"
+      );
+      const okBtn = document.querySelector(".btn-ok");
+
+      // Modal functionality for the contact modal
+      const contactModal = document.getElementById("contactModal");
+      const closeContactModalBtn = document.querySelector(
+        ".close-contact-modal"
+      );
+      const callBtn = document.querySelector(".btn-call");
+      const chatBtn = document.querySelector(".btn-chat");
+
+      function openModal(consignment, delivery) {
+        currentConsignment = consignment;
+        currentDelivery = delivery;
+
+        modalConsignmentDetails.innerHTML = `
+    <h3>Consignment from ${consignment.username} </h3>
+    <h3>Consignment from ${consignment.fromcity} to ${consignment.cityInput}</h3>
+    <p><strong>Weight:</strong> ${consignment.weight} ${consignment.weightUnit}</p>
+    <p><strong>Dimensions:</strong> ${consignment.length} x ${consignment.breadth} x ${consignment.height} cm</p>
+    <p><strong>Transport:</strong> ${consignment.Transport}</p>
+    <p><strong>Start Date:</strong> ${consignment.StartDate}</p>
+    <p><strong>Start Time:</strong> ${consignment.StartTime}</p>
+    <p><strong>Arrival Date:</strong> ${consignment.ArrivalDate}</p>
+    <p><strong>Arrival Time:</strong> ${consignment.ArrivalTime}</p>
+     <p><strong>Delivery cost:</strong> ${consignment.deliverycost}</p>
+    <img src="${consignment.consignmentPhotoPath}" alt="Consignment Photo" class="modal-content-img" onerror="this.onerror=null;this.src='/images/default.png';">
+  `;
+        modalDeliveryDetails.innerHTML = `
+    <h3>Delivery from ${delivery.currentLocation} to ${delivery.travelingLocation}</h3>
+    <p><strong>Means of Travel:</strong> ${delivery.meansOfTravel}</p>
+    <p><strong>Start Date:</strong> ${delivery.startDate}</p>
+    <p><strong>Start Time:</strong> ${delivery.startTime}</p>
+    <p><strong>Arrival Date:</strong> ${delivery.arrivalDate}</p>
+    <p><strong>Arrival Time:</strong> ${delivery.arrivalTime}</p>
+  `;
+        fetch("/get-username")
+          .then((response) => response.json())
+          .then((data) => {
+            const currentUsername = data.username;
+            const isAccepted = consignment.acceptedDeliveries.some(
+              (ad) =>
+                ad.username === currentUsername &&
+                ad.deliveryRouteId === delivery._id
+            );
+
+            document.getElementById("accepted-sign").style.display = isAccepted
+              ? "block"
+              : "none";
+            document.getElementById("acceptBtn").style.display = isAccepted
+              ? "none"
+              : "block";
+            document.getElementById("removeBtn").style.display = isAccepted
+              ? "block"
+              : "none";
+          });
+
+        modal.style.display = "block";
+      }
+
+      closeModalBtn.onclick = () => {
+        modal.style.display = "none";
+      };
+
+      ignoreBtn.onclick = () => {
+        modal.style.display = "none";
+      };
+
+      acceptBtn.onclick = () => {
+        fetch("/get-username")
+          .then((response) => response.json())
+          .then((data) => {
+            const currentUsername = data.username;
+
+            fetch("/update-consignment", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                consignmentId: currentConsignment._id,
+                deliveryUserName: currentUsername,
+                acceptedAt: new Date().toISOString(),
+                deliveryRouteId: currentDelivery._id,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  console.log("Consignment updated successfully");
+                  // Create a popup to alert the user that they will be redirected
+                  const popup = document.createElement("div");
+                  popup.classList.add("popup");
+                  popup.innerHTML = `
+                    <p>You will be redirected to the dashboard in 10 seconds.</p>
+                    <p id="countdown">10</p>
+                    <button id="cancel-button">Cancel</button>
+                  `;
+                  document.body.appendChild(popup);
+
+                  const cancelButton = document.getElementById("cancel-button");
+                  cancelButton.onclick = () => {
+                    clearInterval(interval);
+                    popup.remove();
+                  };
+
+                  let count = 10;
+                  const countdown = document.getElementById("countdown");
+                  const interval = setInterval(() => {
+                    count--;
+                    countdown.textContent = count;
+                    if (count === 0) {
+                      clearInterval(interval);
+                      popup.remove();
+                      window.location.href = "/dashboard";
+                    }
+                  }, 1000);
+
+                  document.getElementById("accepted-sign").style.display =
+                    "block";
+                  document.getElementById("acceptBtn").style.display = "none";
+                  document.getElementById("removeBtn").style.display = "block";
+                } else {
+                  console.error("Failed to update consignment");
+                }
+              })
+              .catch((error) => {
+                console.error("Error updating consignment:", error);
+              });
+          })
+          .catch((error) => console.error("Error fetching username:", error));
+      };
+
+      document.getElementById("removeBtn").onclick = () => {
+        fetch("/get-username")
+          .then((response) => response.json())
+          .then((data) => {
+            const currentUsername = data.username;
+
+            fetch("/remove-agreement", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                consignmentId: currentConsignment._id,
+                deliveryUserName: currentUsername,
+                deliveryRouteId: currentDelivery._id,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  console.log("Agreement removed successfully");
+                  document.getElementById("accepted-sign").style.display =
+                    "none";
+                  document.getElementById("acceptBtn").style.display = "block";
+                  document.getElementById("removeBtn").style.display = "none";
+                } else {
+                  console.error("Failed to remove agreement");
+                }
+              })
+              .catch((error) => {
+                console.error("Error removing agreement:", error);
+              });
+          })
+          .catch((error) => console.error("Error fetching username:", error));
+      };
+
+      // Add event listeners for the confirmation modal
+      closeConfirmationModalBtn.onclick = () => {
+        confirmationModal.style.display = "none";
+      };
+
+      okBtn.onclick = () => {
+        confirmationModal.style.display = "none";
+      };
+
+      // Update the window.onclick function to include the new modal
+      window.onclick = (event) => {
+        if (event.target === modal) {
+          modal.style.display = "none";
+        } else if (event.target === contactModal) {
+          contactModal.style.display = "none";
+        } else if (event.target === confirmationModal) {
+          confirmationModal.style.display = "none";
+        }
+      };
+
+      // Close the side menu if clicked outside of it
+      document.addEventListener("click", (event) => {
+        if (
+          sideMenu.classList.contains("open") &&
+          !sideMenu.contains(event.target)
+        ) {
+          sideMenu.classList.remove("open");
+        }
+      });
+    </script>
+  </body>
+</html>

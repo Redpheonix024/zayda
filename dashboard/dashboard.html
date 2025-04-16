@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+      #deliveryOptionModal {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 10px; /* Space between each column */
+        padding: 10px;
+        max-width: 100%;
+        box-sizing: border-box; /* Include padding and border in element's total width and height */
+        overflow: auto; /* Allow scrolling if needed */
+      }
+      #deliveryOptionModal .column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: calc(
+          33.33% - 10px
+        ); /* Make the columns responsive (3 per row) */
+        margin-bottom: 20px;
+      }
+      #deliveryOptionModal .column img {
+        width: 100px; /* Set a fixed width */
+        height: 100px; /* Set a fixed height */
+        object-fit: cover; /* Ensure the image fits within the specified size without distortion */
+        margin-bottom: 10px; /* Space between image and text */
+      }
+      #deliveryOptionModal .column p {
+        margin: 0;
+        font-size: 14px;
+        word-wrap: break-word;
+        max-width: 100%;
+      }
+      #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+      html {
+        overflow: auto;
+        height: 100%;
+      }
+      body {
+        overflow: auto;
+        height: 100%;
+        -webkit-overflow-scrolling: touch;
+      }
+      .modal {
+        overflow: auto;
+        max-height: 90vh;
+      }
+      @media (max-width: 768px) {
+        #deliveryOptionModal .column {
+          width: calc(50% - 10px);
+        }
+      }
+
+      @media (max-width: 480px) {
+        #deliveryOptionModal .column {
+          width: calc(100% - 10px);
+        }
+      }
+      /* Styles for the delivery option modal */
+    </style>
+  </head>
+  <body>
+    <button class="side-menu-button" id="side-menu-button">☰</button>
+    <div class="side-menu" id="side-menu">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/Entries">Requests</a>
+      <a href="/deleventeries">delevery Requests</a>
+      <a href="/completed_deliveries">completed</a>
+      <a href="/settings">Settings</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <a href="/chat/:username" class="chatroom-link" id="chatroom-link">
+      <img
+        src="/images/pngtree-chattingchatsmsmail--flat-color-icon--vector-icon-banner-t-png-image_1487005.jpg"
+        alt="Chatroom"
+        class="chat-icon"
+      />
+    </a>
+    <div class="content">
+      <h1>Welcome to Your Dashboard, <span id="username"></span></h1>
+      <p>This is your personalized user dashboard.</p>
+
+      <!-- Modal for choosing delivery option -->
+      <div id="overlay"></div>
+      <div id="deliveryOptionModal">
+        <div class="column">
+          <img
+            src="/images/download.png"
+            alt="Sender"
+            onclick="submitDeliveryOption('sender')"
+          />
+          <p>Act as a Sender</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/images.png"
+            alt="Delivery Person"
+            onclick="submitDeliveryOption('deliveryPerson')"
+          />
+          <p>Act as a Delivery Person</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/37455.jpg"
+            alt="deliveryrequests"
+            onclick="submitDeliveryOption('checkoptions')"
+          />
+          <p>Delivery request for you</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/pngtree-cartoon-cartoon-travel-traveling-backpack-backpacker-png-image_477242.jpg"
+            alt="senderrequests"
+            onclick="submitDeliveryOption('senderrequests')"
+          />
+          <p>Delivery request for you</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/3934232.webp"
+            alt="acceptedsenderrequests"
+            onclick="submitDeliveryOption('acceptedsenderrequests')"
+          />
+          <p>Accepted request by sender</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/3934232.webp"
+            alt="accepteddelrequests"
+            onclick="submitDeliveryOption('accepteddelrequests')"
+          />
+          <p>Accepted request by delivery person</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/sendertrack.png"
+            alt="tracksender"
+            onclick="submitDeliveryOption('tracksender')"
+          />
+          <p>tracking for traveller</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/sendertrack.png"
+            alt="tracktrveler"
+            onclick="submitDeliveryOption('tracktrveler')"
+          />
+          <p>tracking for sender</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/sendertrack.png"
+            alt="locationsentraccking"
+            onclick="submitDeliveryOption('locationsentraccking')"
+          />
+          <p>location tracking for sender</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/sendertrack.png"
+            alt="inhand"
+            onclick="submitDeliveryOption('inhand')"
+          />
+          <p>Currently carrying package</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/recivers dashboard.png"
+            alt="reciver dashboard"
+            onclick="submitDeliveryOption('reciver_dashboard')"
+          />
+          <p>location tracking for reciver</p>
+        </div>
+        <div class="column">
+          <img
+            src="/images/transactions.png"
+            style="
+              height: 100px;
+              width: 500px;
+              transform: scale(0.5);
+            "
+            alt="transactionssender"
+            onclick="submitDeliveryOption('transactions')"
+          />
+          <p>transaction for sender</p>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Fetch the username from the server
+      fetch("/get-username")
+        .then((response) => response.json())
+        .then((data) => {
+          const welcomeMessage = document.getElementById("username");
+          welcomeMessage.innerText = data.username;
+        })
+        .catch((error) => console.error("Error fetching username:", error));
+
+      // Toggle the side menu when the button is clicked
+      const sideMenuButton = document.getElementById("side-menu-button");
+      const sideMenu = document.getElementById("side-menu");
+      sideMenuButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        sideMenu.classList.toggle("open");
+      });
+
+      // Close the side menu if clicked outside of it
+      document.addEventListener("click", (event) => {
+        if (
+          sideMenu.classList.contains("open") &&
+          !sideMenu.contains(event.target)
+        ) {
+          sideMenu.classList.remove("open");
+        }
+      });
+
+      // Function to open the delivery option modal
+      function openDeliveryOptionModal() {
+        const modal = document.getElementById("deliveryOptionModal");
+        const overlay = document.getElementById("overlay");
+        modal.style.display = "flex";
+        overlay.style.display = "block";
+      }
+
+      // Function to close the delivery option modal
+      function closeDeliveryOptionModal() {
+        const modal = document.getElementById("deliveryOptionModal");
+        const overlay = document.getElementById("overlay");
+        modal.style.display = "none";
+        overlay.style.display = "none";
+      }
+
+      // Function to submit the chosen delivery option
+
+      function submitDeliveryOption(option) {
+        console.log(`Chosen role: ${option}`);
+
+        // Define the URLs for the sender and delivery person pages
+        const senderURL = "/sender-page"; // Adjust the URL based on your actual sender page
+        const deliveryPersonURL = "/delivery-person-page"; // Adjust the URL based on your actual delivery person page
+        const checkOptionsURL = "/delivery-option-page"; // Adjust the URL based on your actual delivery options page
+        const senderreq = "/senderrequestpage";
+        const acceptedrequests = "/acceptedreqpage";
+        const accepteddelrequests = "/accepteddelreqpage";
+        tracksender = "/tracksenderpage";
+        tracktrveler = "/trackdeleveypage";
+        tracklocation = "/trackloctionsen";
+        ongoingpackage = "/inhandpackage";
+        reciver_dash = "/reciver_dash";
+        transactions = "/transactionssender";
+        // Determine the URL based on the chosen option
+        let targetURL;
+        if (option === "sender") {
+          targetURL = senderURL;
+        } else if (option === "deliveryPerson") {
+          targetURL = deliveryPersonURL;
+        } else if (option === "checkoptions") {
+          targetURL = checkOptionsURL;
+        } else if (option === "senderrequests") {
+          targetURL = senderreq;
+        } else if (option === "acceptedsenderrequests") {
+          targetURL = acceptedrequests;
+        } else if (option === "accepteddelrequests") {
+          targetURL = accepteddelrequests;
+        } else if (option === "tracksender") {
+          targetURL = tracksender;
+        } else if (option === "tracktrveler") {
+          targetURL = tracktrveler;
+        } else if (option === "locationsentraccking") {
+          targetURL = tracklocation;
+        } else if (option === "inhand") {
+          targetURL = ongoingpackage;
+        } else if (option === "reciver_dashboard") {
+          targetURL = reciver_dash;
+        } else if (option === "transactions") {
+          targetURL = transactions;
+        }
+        // Redirect to the chosen option's page
+        window.location.href = targetURL;
+      }
+    </script>
+    <script>
+      // Function to fetch user data and available delivery options
+      async function fetchUserData() {
+        try {
+          const usernameResponse = await fetch("/get-username");
+          const usernameData = await usernameResponse.json();
+          document.getElementById("username").innerText = usernameData.username;
+
+          const optionsResponse = await fetch("/delivery-options");
+          const availableOptions = await optionsResponse.json();
+          console.log(availableOptions);
+
+          updateDeliveryOptions(availableOptions);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+
+      // Function to update delivery options in the modal
+      // Function to update delivery options in the modal
+      // Function to update delivery options in the modal
+      // Function to update delivery options in the modal
+      function updateDeliveryOptions(availableOptions) {
+        // Log the available options to the console
+        console.log("Available options:", availableOptions);
+
+        const optionElements = document.querySelectorAll(
+          "#deliveryOptionModal .column"
+        );
+
+        // Iterate through all the option elements
+        optionElements.forEach((element) => {
+          const option = element
+            .querySelector("img")
+            .alt.replace(/ /g, "") // Remove spaces
+            .replace(/[^\w\s]/gi, "") // Remove special characters
+            .toLowerCase(); // Convert to lowercase
+
+          // Log the current option being checked
+          console.log("Checking option:", option);
+
+          // Compare the normalized option against normalized availableOptions
+          const normalizedOption = option.replace(/ /g, "").toLowerCase();
+          const normalizedOptions = availableOptions.map((opt) =>
+            opt.replace(/ /g, "").toLowerCase()
+          );
+
+          if (normalizedOptions.includes(normalizedOption)) {
+            element.style.display = "flex"; // Display the element
+            console.log(`Displaying option: ${option}`);
+          } else {
+            element.style.display = "none"; // Hide the element
+            console.log(`Hiding option: ${option}`);
+          }
+        });
+      }
+
+      // Fetch user data and delivery options on page load
+      fetchUserData();
+
+      // Set up periodic refresh every 5 minutes (300000 milliseconds)
+      setInterval(fetchUserData, 10000); // Adjust the interval as needed
+
+      // Rest of your existing script...
+    </script>
+  </body>
+</html>

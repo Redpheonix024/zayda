@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>User Entries</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .entry {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .entry-details p {
+      flex: 1;
+      margin: 4px 0;
+    }
+
+    .buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center; /* Align buttons vertically in the center */
+}
+
+.update-btn, .delete-btn {
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+    .delete-btn {
+      background-color: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <button class="side-menu-button" id="side-menu-button">☰</button>
+  <div class="side-menu" id="side-menu">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/profile">Profile</a>
+    <a href="/Entries">Requests</a>
+    <a href="/deleventeries">delevery Requests</a>
+    <a href="/settings">Settings</a>
+    <a href="/logout">Logout</a>
+  </div>
+  <h1>These are your enteries, <span id="username"></span></h1>
+  <h2>User Entries</h2>
+
+  <div id="entryCount">Loading...</div>
+  <div id="entriesContainer"></div>
+
+  <script>
+
+fetch('/get-username')
+      .then(response => response.json())
+      .then(data => {
+        const welcomeMessage = document.getElementById('username');
+        welcomeMessage.innerText = data.username;
+      })
+      .catch(error => console.error('Error fetching username:', error));
+
+    // Toggle the side menu when the button is clicked
+    const sideMenuButton = document.getElementById('side-menu-button');
+    const sideMenu = document.getElementById('side-menu');
+    sideMenuButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      sideMenu.classList.toggle('open');
+    });
+
+    // Close the side menu if clicked outside of it
+    document.addEventListener('click', (event) => {
+      if (sideMenu.classList.contains('open') && !sideMenu.contains(event.target)) {
+        sideMenu.classList.remove('open');
+      }
+    });
+    // Fetch and display the entries for the current user
+    async function fetchAndDisplayEntries() {
+      try {
+        const response = await fetch('/get-delentries', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          const entriesContainer = document.getElementById('entriesContainer');
+
+          // Clear previous entries
+          entriesContainer.innerHTML = '';
+
+          // Display each entry
+          result.entries.forEach(entry => {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'entry';
+
+            const entryDetailsDiv = document.createElement('div');
+            entryDetailsDiv.className = 'entry-details';
+
+            // Display basic details
+            entryDetailsDiv.innerHTML = `
+              <p><strong>From:</strong> ${entry.currentLocation}</p>
+              <p><strong>To:</strong> ${entry.travelingLocation}</p>
+              <p><strong>Transport:</strong> ${entry.meansOfTravel}</p>
+              <p><strong>Start of journey</strong> ${entry.startDate} ${entry.startTime}</p>
+              <p><strong>Destination date & time</strong> ${entry.arrivalDate} ${entry.arrivalTime}</p>
+              <p><strong>Submitted Time:</strong> ${entry.submissionDateTime}</p>`;
+
+            // Add entry details to the entry div
+            entryDiv.appendChild(entryDetailsDiv);
+
+            // Add buttons for update and delete
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'buttons';
+
+            const updateButton = document.createElement('button');
+            updateButton.className = 'update-btn';
+            updateButton.textContent = 'Update';
+            updateButton.addEventListener('click', () => updateEntry(entry.submissionDateTime));
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-btn';
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', () => deleteEntry(entry.submissionDateTime));
+
+            buttonsDiv.appendChild(updateButton);
+            buttonsDiv.appendChild(deleteButton);
+
+            entryDiv.appendChild(buttonsDiv);
+
+            // Add the entry div to the container
+            entriesContainer.appendChild(entryDiv);
+          });
+        } else {
+          document.getElementById('entriesContainer').innerText = 'Failed to fetch entries.';
+        }
+      } catch (error) {
+        console.error('Error fetching entries:', error);
+        document.getElementById('entriesContainer').innerText = 'Internal server error. Please try again later.';
+      }
+    }
+
+    // Update an entry
+    function updateEntry(submissionDateTime) {
+  
+  window.location.href = `/update-delentry-page?submissionDateTime=${submissionDateTime}`;
+  
+}
+
+    // Delete an entry
+    function deleteEntry(submissionDateTime) {
+  // Confirm with the user before deleting
+  const confirmDelete = confirm(`do you want to delete: ${submissionDateTime}`);
+
+  if (!confirmDelete) {
+    return;
+  }
+
+  // Make a DELETE request to the server
+  fetch(`/delete-delentry/${submissionDateTime}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => response.json())
+    .then(result => {
+      if (result.success) {
+        // Entry deleted successfully, you may want to refresh the entries on the UI
+        fetchAndDisplayEntries();
+        fetchEntryCount();
+      } else {
+        // Handle the case where deletion was not successful
+        console.error('Failed to delete entry:', result.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error deleting entry:', error);
+      // Handle the case where an error occurred during the deletion process
+    });
+}
+
+    // Call the function on page load
+    fetchAndDisplayEntries();
+  </script>
+
+  <script>
+    // Fetch the entry count for the current user
+    async function fetchEntryCount() {
+      try {
+        const response = await fetch('/get-delev-count', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          document.getElementById('entryCount').innerText = `Number of Entries: ${result.entryCount}`;
+        } else {
+          document.getElementById('entryCount').innerText = 'Failed to fetch entry count.';
+        }
+      } catch (error) {
+        console.error('Error fetching entry count:', error);
+        document.getElementById('entryCount').innerText = 'Internal server error. Please try again later.';
+      }
+    }
+
+    // Call the function on page load
+    fetchEntryCount();
+  </script>
+
+</body>
+</html>

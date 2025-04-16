@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Settings</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <h1></h1>
+    <style>
+        h1{
+            text-align: center;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .settings-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style> 
+</head>
+<body>
+    <button class="side-menu-button" id="side-menu-button">☰</button>
+    <div class="side-menu" id="side-menu">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/Entries">Requests</a>
+      <a href="/settings">Settings</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <script>
+        // Fetch the username from the server
+        fetch('/get-username')
+          .then(response => response.json())
+          .then(data => {
+            const welcomeMessage = document.getElementById('username')
+            welcomeMessage.innerText = data.username;
+          })
+          .catch(error => console.error('Error fetching username:', error))
+          fetch('/get-username')
+      .then(response => response.json())
+      .then(data => {
+        const welcomeMessage = document.getElementById('username')
+        welcomeMessage.innerText = data.username;
+      })
+      .catch(error => console.error('Error fetching username:', error))
+    
+    // Toggle the side menu when the button is clicked
+    const sideMenuButton = document.getElementById('side-menu-button')
+    const sideMenu = document.getElementById('side-menu')
+    sideMenuButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      sideMenu.classList.toggle('open')
+    })
+    
+    // Close the side menu if clicked outside of it
+    document.addEventListener('click', (event) => {
+      if (sideMenu.classList.contains('open') && !sideMenu.contains(event.target)) {
+        sideMenu.classList.remove('open')
+      }
+    })  
+     </script> 
+
+    <div class="settings-container">
+        <h2>Welcome to Your setting panel, <span id="username"></span></h2>
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="Enter your username">
+
+        <label for="theme">Theme:</label>
+        <select id="theme">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+        </select>
+
+        <button onclick="saveSettings()">Save Settings</button>
+    </div>
+
+    <script>
+        function saveSettings() {
+            var username = document.getElementById('username').value;
+            var theme = document.getElementById('theme').value;
+
+            // Here, you can save the settings using AJAX or any other method
+            // For simplicity, we'll just log the settings to the console
+            console.log('Username:', username);
+            console.log('Theme:', theme);
+            alert('Settings saved successfully!');
+        }
+    </script>
+</body>
+</html>

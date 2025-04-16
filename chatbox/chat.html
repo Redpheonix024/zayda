@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Private Chat</title>
+    <link rel="stylesheet" href="/css/chat/cstyle.css" />
+    <style></style>
+  </head>
+  <body>
+    <button class="side-menu-button" id="side-menu-button">☰</button>
+    <div class="side-menu" id="side-menu">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/Entries">Requests</a>
+      <a href="/deleventeries">delevery Requests</a>
+      <a href="/settings">Settings</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <!-- <div id="chat-container">
+      <div id="username-prompt" class="hidden">
+        <input id="username-input" placeholder="Enter username" />
+        <button id="set-username">Set Username</button>
+      </div>
+      <div>
+        <p>Current Username: <span id="current-username"></span></p>
+      </div>
+      <div id="chat" class="hidden">
+        <div class="active-users">
+          <h3>Active Users:</h3>
+          <ul id="users"></ul>
+        </div>
+        <div>
+          <input id="recipient-input" placeholder="Enter recipient username" />
+        </div>
+        <ul id="messages"></ul>
+        <div class="controls">
+          <form id="form" action="">
+            <input id="input" autocomplete="off" type="textarea" />
+            <button>Send</button>
+          </form>
+          <div class="extra-controls">
+            <button id="start-recording" class="control-btn">
+              Start Recording
+            </button>
+            <button id="stop-recording" class="hidden control-btn">
+              Stop Recording
+            </button>
+            <input type="file" id="image-input" accept="image/*" />
+            <label for="image-input" class="image-input control-btn">
+              Your files
+            </label>
+            <button id="upload-image" class="control-btn">Upload Image</button>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
+    <div
+      style="
+        text-align: center;
+        margin-top: 20px;
+        font-size: 24px;
+        color: #ff0000;
+      "
+    >
+      <h1>Under Maintenance</h1>
+      <p>
+        Sorry for the inconvenience, but this section is currently under
+        maintenance. Please try again later. <a href="/dashboard">Go to Dashboard</a>
+      </p>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const sideMenuButton = document.getElementById("side-menu-button");
+      const sideMenu = document.getElementById("side-menu");
+      sideMenuButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        sideMenu.classList.toggle("open");
+      });
+
+      // Close the side menu if clicked outside of it
+      document.addEventListener("click", (event) => {
+        if (
+          sideMenu.classList.contains("open") &&
+          !sideMenu.contains(event.target)
+        ) {
+          sideMenu.classList.remove("open");
+        }
+      });
+      var socket = io();
+      var usernameInput = document.getElementById("username-input");
+      var setUsernameButton = document.getElementById("set-username");
+      var recipientInput = document.getElementById("recipient-input");
+      var form = document.getElementById("form");
+      var input = document.getElementById("input");
+      var messages = document.getElementById("messages");
+      var usersList = document.getElementById("users");
+      var currentUsernameElement = document.getElementById("current-username");
+      var currentUsername = "";
+
+      var startRecordingButton = document.getElementById("start-recording");
+      var stopRecordingButton = document.getElementById("stop-recording");
+      var mediaRecorder;
+      var audioChunks = [];
+
+      function extractRecipientFromURL() {
+        var path = window.location.pathname;
+        var pathParts = path.split("/");
+        var lastPart = pathParts[pathParts.length - 1];
+
+        if (lastPart === ":username") {
+          return null;
+        }
+
+        return decodeURIComponent(lastPart);
+      }
+
+      function setUsername(username) {
+        socket.emit("set username", username);
+        currentUsername = username;
+        currentUsernameElement.textContent = username;
+        document.getElementById("username-prompt").classList.add("hidden");
+        document.getElementById("chat").classList.remove("hidden");
+      }
+
+      fetch("/get-username")
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.username) {
+            setUsername(data.username);
+          } else {
+            document
+              .getElementById("username-prompt")
+              .classList.remove("hidden");
+          }
+        });
+
+      setUsernameButton.addEventListener("click", () => {
+        var username = usernameInput.value;
+        if (username) {
+          setUsername(username);
+        }
+      });
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var recipient = recipientInput.value;
+        if (input.value && recipient) {
+          socket.emit("private message", {
+            to: recipient,
+            message: input.value,
+            type: "text",
+          });
+          input.value = "";
+        }
+      });
+
+      startRecordingButton.addEventListener("click", () => {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.start();
+
+          mediaRecorder.addEventListener("dataavailable", (event) => {
+            audioChunks.push(event.data);
+          });
+
+          mediaRecorder.addEventListener("stop", () => {
+            var audioBlob = new Blob(audioChunks);
+            var formData = new FormData();
+            formData.append("audio", audioBlob);
+
+            fetch("/upload/audio", {
+              method: "POST",
+              body: formData,
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                var recipient = recipientInput.value;
+                if (recipient) {
+                  socket.emit("private message", {
+                    to: recipient,
+                    message: "",
+                    type: "audio",
+                    filename: data.filename,
+                  });
+                }
+              });
+
+            audioChunks = [];
+          });
+
+          startRecordingButton.classList.add("hidden");
+          stopRecordingButton.classList.remove("hidden");
+        });
+      });
+
+      stopRecordingButton.addEventListener("click", () => {
+        mediaRecorder.stop();
+        startRecordingButton.classList.remove("hidden");
+        stopRecordingButton.classList.add("hidden");
+      });
+
+      socket.on("private message", function (data) {
+        var item = document.createElement("li");
+        var span = document.createElement("span");
+
+        if (data.type === "text") {
+          span.textContent = `From ${data.from}: ${data.message}`;
+        } else if (data.type === "audio") {
+          var audioElement = document.createElement("audio");
+          audioElement.controls = true;
+          audioElement.src = `../chats/upload/voicenotes/${data.filename}`;
+          item.appendChild(document.createTextNode(`From ${data.from}: `));
+          item.appendChild(audioElement);
+        } else if (data.type === "image") {
+          var imageElement = document.createElement("img");
+          imageElement.src = `../chats/upload/images/${data.filename}`;
+          imageElement.style.maxWidth = "200px"; // Adjust size as needed
+          item.appendChild(document.createTextNode(`From ${data.from}: `));
+          item.appendChild(imageElement);
+        }
+        item.appendChild(span);
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on("active users", function (users) {
+        usersList.innerHTML = "";
+        users.forEach((user) => {
+          if (user !== currentUsername) {
+            var item = document.createElement("li");
+            item.textContent = user;
+            item.addEventListener("click", () => {
+              recipientInput.value = user;
+              messages.innerHTML = "";
+              socket.emit("get messages", { from: currentUsername, to: user });
+            });
+            usersList.appendChild(item);
+          }
+        });
+      });
+
+      socket.on("load messages", function (messagesArray) {
+        messagesArray.forEach((msg) => {
+          var item = document.createElement("li");
+          if (msg.type === "text") {
+            item.textContent = `From ${msg.from_user}: ${msg.message}`;
+          } else if (msg.type === "audio") {
+            var audioElement = document.createElement("audio");
+            audioElement.controls = true;
+            audioElement.src = `/chats/upload/voicenotes/${msg.filename}`;
+            item.appendChild(
+              document.createTextNode(`From ${msg.from_user}: `)
+            );
+            item.appendChild(audioElement);
+          } else if (msg.type === "image") {
+            var imageElement = document.createElement("img");
+            imageElement.src = `/chats/upload/images/${msg.filename}`;
+            imageElement.style.maxWidth = "200px"; // Adjust size as needed
+            item.appendChild(
+              document.createTextNode(`From ${msg.from_user}: `)
+            );
+            item.appendChild(imageElement);
+          }
+          messages.appendChild(item);
+        });
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      var imageInput = document.getElementById("image-input");
+      var uploadImageButton = document.getElementById("upload-image");
+
+      uploadImageButton.addEventListener("click", () => {
+        var imageFile = imageInput.files[0];
+        if (imageFile) {
+          var formData = new FormData();
+          formData.append("image", imageFile);
+
+          fetch("/upload/image", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              var recipient = recipientInput.value;
+              if (recipient) {
+                socket.emit("private message", {
+                  to: recipient,
+                  message: "",
+                  type: "image",
+                  filename: data.filename,
+                });
+              }
+            });
+        }
+      });
+
+      window.addEventListener("load", () => {
+        var recipient = extractRecipientFromURL();
+        if (recipient) {
+          recipientInput.value = recipient;
+        }
+      });
+    </script>
+  </body>
+</html>
