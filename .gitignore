@@ -128,3 +128,22 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Additional cache and build files
+.cache/
+dist/
+build/
+.temp/
+tmp/
+temp/
+
+# IDE specific
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+
+# OS specific
+.DS_Store
+Thumbs.db
